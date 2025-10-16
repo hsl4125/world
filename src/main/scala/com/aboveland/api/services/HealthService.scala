@@ -17,7 +17,7 @@ class HealthService {
   private val version = "1.0.0"
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   
-  def getHealthStatus(): Future[HealthStatus] = {
+  def getHealthStatus: Future[HealthStatus] = {
     val currentTime = LocalDateTime.now()
     val uptimeMs = System.currentTimeMillis() - startTime
     val uptime = formatUptime(uptimeMs)
