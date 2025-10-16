@@ -2,7 +2,8 @@ package com.aboveland.api.routes
 
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
-import com.aboveland.api.handlers.{HealthHandler, UserHandler}
+import com.aboveland.api.handlers.HealthHandler
+import com.aboveland.example.handlers.UserHandler
 
 class Routes(
   userHandler: UserHandler,
@@ -12,7 +13,11 @@ class Routes(
   def allRoutes: Route = {
     pathPrefix("api" / "v1") {
       concat(
-        healthHandler.routes,
+        healthHandler.routes
+      )
+    } ~
+    pathPrefix("example" / "v1") {
+      concat(
         userHandler.routes
       )
     } ~

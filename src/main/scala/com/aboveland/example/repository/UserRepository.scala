@@ -1,6 +1,6 @@
-package com.aboveland.api.repository
+package com.aboveland.example.repository
 
-import com.aboveland.api.models.User
+import com.aboveland.example.models.User
 import java.time.LocalDateTime
 import scala.concurrent.Future
 import scala.collection.mutable

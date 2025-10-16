@@ -19,29 +19,33 @@ world-api/
 │   │   ├── scala/
 │   │   │   └── com/aboveland/
 │   │   │       ├── Main.scala        # Application entry point
-│   │   │       ├── api/              # HTTP API layer
+│   │   │       ├── api/              # HTTP API layer 
 │   │   │       │   ├── HttpServer.scala      # HTTP server
 │   │   │       │   ├── config/
 │   │   │       │   │   └── AppConfig.scala   # Application configuration
 │   │   │       │   ├── routes/
 │   │   │       │   │   └── Routes.scala      # Route aggregation
 │   │   │       │   ├── handlers/
-│   │   │       │   │   ├── UserHandler.scala # User request handlers
 │   │   │       │   │   └── HealthHandler.scala # Health check handlers
 │   │   │       │   ├── models/
-│   │   │       │   │   ├── UserModels.scala  # User data models
 │   │   │       │   │   └── ApiResponse.scala # API response models
 │   │   │       │   ├── services/
-│   │   │       │   │   ├── UserService.scala # User business logic
 │   │   │       │   │   └── HealthService.scala # Health service
-│   │   │       │   ├── repository/
-│   │   │       │   │   └── UserRepository.scala # Data access layer
 │   │   │       │   ├── middleware/
 │   │   │       │   │   ├── CorsDirectives.scala # CORS handling
 │   │   │       │   │   ├── ErrorHandlingDirectives.scala # Error handling
 │   │   │       │   │   └── LoggingDirectives.scala # Request logging
 │   │   │       │   └── utils/
 │   │   │       │       └── JsonSupport.scala # JSON utilities
+│   │   │       ├── example/          # Example user feature
+│   │   │       │   ├── handlers/
+│   │   │       │   │   └── UserHandler.scala # User request handlers (example)
+│   │   │       │   ├── models/
+│   │   │       │   │   └── UserModels.scala  # User data models (example)
+│   │   │       │   ├── services/
+│   │   │       │   │   └── UserService.scala # User business logic (example)
+│   │   │       │   └── repository/
+│   │   │       │       └── UserRepository.scala # Data access layer (example)
 │   │   │       ├── actors/           # Akka Typed Actors
 │   │   │       │   └── HelloWorldActor.scala
 │   │   │       └── config/           # Configuration management
@@ -105,12 +109,12 @@ world-api/
 - `GET /api/v1/health/ready` - Readiness check
 - `GET /api/v1/health/live` - Liveness check
 
-### User Endpoints
-- `GET /api/v1/users` - Get all users
-- `POST /api/v1/users` - Create a new user
-- `GET /api/v1/users/{id}` - Get user by ID
-- `PUT /api/v1/users/{id}` - Update user
-- `DELETE /api/v1/users/{id}` - Delete user
+### User Endpoints (example)
+- `GET /example/v1/users` - Get all users
+- `POST /example/v1/users` - Create a new user
+- `GET /example/v1/users/{id}` - Get user by ID
+- `PUT /example/v1/users/{id}` - Update user
+- `DELETE /example/v1/users/{id}` - Delete user
 
 ## Dependencies
 
@@ -141,14 +145,17 @@ This is a production-ready Akka HTTP project structure that includes:
 
 ## Package Structure
 
-The project uses the package structure `com.aboveland.api` with the following organization:
-- `com.aboveland.api` - Main API package
+The project uses the package structure `com.aboveland.api` for core APIs and `com.aboveland.example` for sample user features:
+- `com.aboveland.api` - Core API package (server, health, middleware, config, utils)
 - `com.aboveland.api.routes` - Route definitions and aggregation
-- `com.aboveland.api.handlers` - HTTP request handlers
-- `com.aboveland.api.services` - Business logic services
-- `com.aboveland.api.repository` - Data access layer
-- `com.aboveland.api.models` - Data models and DTOs
+- `com.aboveland.api.handlers` - Core handlers (e.g., `HealthHandler`)
+- `com.aboveland.api.services` - Core services (e.g., `HealthService`)
+- `com.aboveland.api.models` - Core models (e.g., `ApiResponse`)
 - `com.aboveland.api.middleware` - HTTP middleware (CORS, logging, error handling)
 - `com.aboveland.api.config` - Configuration management
 - `com.aboveland.api.utils` - Utility classes
+- `com.aboveland.example.handlers` - Example `UserHandler`
+- `com.aboveland.example.services` - Example `UserService`
+- `com.aboveland.example.repository` - Example `UserRepository`
+- `com.aboveland.example.models` - Example `UserModels`
 

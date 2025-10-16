@@ -7,9 +7,11 @@ import akka.http.scaladsl.server.Route
 import com.aboveland.api.config.AppConfig
 import com.aboveland.api.middleware.{CorsDirectives, ErrorHandlingDirectives, LoggingDirectives}
 import com.aboveland.api.routes.Routes
-import com.aboveland.api.services.{HealthService, UserService}
-import com.aboveland.api.repository.{UserRepository, InMemoryUserRepository}
-import com.aboveland.api.handlers.{HealthHandler, UserHandler}
+import com.aboveland.api.services.HealthService
+import com.aboveland.example.services.UserService
+import com.aboveland.example.repository.{UserRepository, InMemoryUserRepository}
+import com.aboveland.api.handlers.HealthHandler
+import com.aboveland.example.handlers.UserHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

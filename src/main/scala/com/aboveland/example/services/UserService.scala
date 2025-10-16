@@ -1,7 +1,7 @@
-package com.aboveland.api.services
+package com.aboveland.example.services
 
-import com.aboveland.api.models.{User, CreateUserRequest, UpdateUserRequest}
-import com.aboveland.api.repository.UserRepository
+import com.aboveland.example.models.{User, CreateUserRequest, UpdateUserRequest}
+import com.aboveland.example.repository.UserRepository
 import scala.concurrent.{Future, ExecutionContext}
 import java.time.LocalDateTime
 import java.util.UUID

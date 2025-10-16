@@ -1,4 +1,4 @@
-package com.aboveland.api.models
+package com.aboveland.example.models
 
 import java.time.LocalDateTime
 import spray.json.DefaultJsonProtocol
