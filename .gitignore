@@ -1,0 +1,32 @@
+# SBT
+target/
+project/target/
+project/project/
+project/metals.sbt
+.bloop/
+.bsp/
+metals.sbt
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# JVM
+hs_err_pid*
+
+# Scala
+*.class
+*.jar
+
