@@ -15,8 +15,11 @@ import com.aboveland.example.handlers.UserHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import org.slf4j.LoggerFactory
 
 object HttpServer {
+  
+  private val logger = LoggerFactory.getLogger("com.aboveland.api.HttpServer")
   
   def main(args: Array[String]): Unit = {
     startServer()
@@ -29,9 +32,14 @@ object HttpServer {
   }
   
   def startServer(): Unit = {
+    logger.info("Initializing HTTP server...")
+    logger.debug("Debug: Starting server initialization")
+    
     // Create Actor system
     implicit val system: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "yyy-api-system")
     implicit val ec: ExecutionContext = system.executionContext
+    
+    logger.info("Actor system created successfully")
     
     // Load configuration
     val appConfig = AppConfig.load()
@@ -66,20 +74,26 @@ object HttpServer {
     bindingFuture.onComplete {
       case Success(binding) =>
         val address = binding.localAddress
+        logger.info(s"HTTP server successfully bound to ${address.getHostString}:${address.getPort}")
         system.log.info("Server online at http://{}:{}/", address.getHostString, address.getPort)
         println(s"🚀 Server is running at http://${address.getHostString}:${address.getPort}")
         println("📝 Press ENTER to stop the server...")
       case Failure(ex) =>
+        logger.error(s"Failed to bind HTTP server: ${ex.getMessage}", ex)
         system.log.error("Failed to bind HTTP endpoint, terminating system", ex)
         system.terminate()
     }(ec)
     
     // Graceful shutdown hook
     sys.addShutdownHook {
+      logger.info("Received shutdown signal, shutting down server...")
       system.log.info("Shutting down server...")
       bindingFuture
         .flatMap(_.unbind())(ec)
-        .onComplete(_ => system.terminate())(ec)
+        .onComplete(_ => {
+          logger.info("Server shutdown completed")
+          system.terminate()
+        })(ec)
     }
     
     // Block main thread to keep server running
