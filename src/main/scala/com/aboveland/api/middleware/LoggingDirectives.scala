@@ -1,13 +1,9 @@
 package com.aboveland.api.middleware
 
-import akka.http.scaladsl.server.{Directive0, Directive1}
+import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives._
-import akka.event.Logging
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.Route
 import org.slf4j.LoggerFactory
-
-import scala.util.{Failure, Success}
 
 object LoggingDirectives {
   
