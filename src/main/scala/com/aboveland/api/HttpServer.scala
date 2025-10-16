@@ -12,12 +12,22 @@ import com.aboveland.api.services.{HealthService, UserService}
 import com.aboveland.api.repository.{UserRepository, InMemoryUserRepository}
 import com.aboveland.api.handlers.{HealthHandler, UserHandler}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 object HttpServer {
   
   def main(args: Array[String]): Unit = {
+    startServer()
+  }
+  
+  def startServerAsync()(implicit ec: ExecutionContext): Future[Unit] = {
+    Future {
+      startServer()
+    }
+  }
+  
+  def startServer(): Unit = {
     // Create Actor system
     implicit val system: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "yyy-api-system")
     implicit val ec: ExecutionContext = system.executionContext
