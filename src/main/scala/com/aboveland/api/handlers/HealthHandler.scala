@@ -21,7 +21,7 @@ class HealthHandler(healthService: HealthService) {
       concat(
         // GET /api/v1/health - Health check
         get {
-          onSuccess(healthService.getHealthStatus()) { healthStatus =>
+          onSuccess(healthService.getHealthStatus) { healthStatus =>
             complete(StatusCodes.OK, healthStatus.toJson.compactPrint)
           }
         },
