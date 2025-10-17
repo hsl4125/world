@@ -19,13 +19,6 @@ class HealthHandler(healthService: HealthService) {
   def routes: Route = {
     pathPrefix("health") {
       concat(
-        // GET /api/v1/health - Health check
-        get {
-          onSuccess(healthService.getHealthStatus) { healthStatus =>
-            complete(StatusCodes.OK, healthStatus.toJson.compactPrint)
-          }
-        },
-        
         // GET /api/v1/health/ready - Readiness check
         path("ready") {
           get {
@@ -37,6 +30,13 @@ class HealthHandler(healthService: HealthService) {
         path("live") {
           get {
             complete(StatusCodes.OK, """{"status": "alive", "message": "Service is alive"}""")
+          }
+        },
+        
+        // GET /api/v1/health - Health check (must be last to avoid matching sub-paths)
+        get {
+          onSuccess(healthService.getHealthStatus) { healthStatus =>
+            complete(StatusCodes.OK, healthStatus.toJson.compactPrint)
           }
         }
       )
