@@ -7,10 +7,10 @@ import akka.http.scaladsl.server.Route
 import com.aboveland.api.config.AppConfig
 import com.aboveland.api.middleware.{CorsDirectives, ErrorHandlingDirectives, LoggingDirectives}
 import com.aboveland.api.routes.Routes
-import com.aboveland.api.services.HealthService
+import com.aboveland.api.services.{HealthService, WorldService}
 import com.aboveland.example.services.UserService
 import com.aboveland.example.repository.InMemoryUserRepository
-import com.aboveland.api.handlers.HealthHandler
+import com.aboveland.api.handlers.{HealthHandler, WorldHandler}
 import com.aboveland.example.handlers.UserHandler
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -67,9 +67,11 @@ object HttpServer {
     val userRepository = new InMemoryUserRepository()
     val userService = new UserService(userRepository)
     val healthService = new HealthService()
+    val worldService = new WorldService()
     val userHandler = new UserHandler(userService)
     val healthHandler = new HealthHandler(healthService)
-    val routes = new Routes(userHandler, healthHandler)
+    val worldHandler = new WorldHandler(worldService)
+    val routes = new Routes(userHandler, healthHandler, worldHandler)
     
     // Combine middleware and routes
     CorsDirectives.corsHandler {
