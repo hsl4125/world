@@ -20,7 +20,7 @@ object Main {
   }
   
   def main(args: Array[String]): Unit = {
-    // 确保日志目录存在
+    // Ensure log directory exists
     ensureLogDirectoryExists()
     
     logger.info("Starting World application...")
