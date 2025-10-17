@@ -76,8 +76,8 @@ object HttpServer {
         val address = binding.localAddress
         logger.info(s"HTTP server successfully bound to ${address.getHostString}:${address.getPort}")
         system.log.info("Server online at http://{}:{}/", address.getHostString, address.getPort)
-        println(s"🚀 Server is running at http://${address.getHostString}:${address.getPort}")
-        println("📝 Press ENTER to stop the server...")
+        logger.info(s"🚀 Server is running at http://${address.getHostString}:${address.getPort}")
+        logger.info("📝 Press ENTER to stop the server...")
       case Failure(ex) =>
         logger.error(s"Failed to bind HTTP server: ${ex.getMessage}", ex)
         system.log.error("Failed to bind HTTP endpoint, terminating system", ex)

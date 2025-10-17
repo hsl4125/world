@@ -29,10 +29,8 @@ object Main {
     HttpServer.startServerAsync().onComplete {
       case scala.util.Success(_) => 
         logger.info("Server started successfully")
-        println("Server started successfully")
       case scala.util.Failure(exception) => 
         logger.error(s"Failed to start server: ${exception.getMessage}", exception)
-        println(s"Failed to start server: ${exception.getMessage}")
         sys.exit(1)
     }
     
