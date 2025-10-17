@@ -9,7 +9,7 @@ import com.aboveland.api.middleware.{CorsDirectives, ErrorHandlingDirectives, Lo
 import com.aboveland.api.routes.Routes
 import com.aboveland.api.services.HealthService
 import com.aboveland.example.services.UserService
-import com.aboveland.example.repository.{UserRepository, InMemoryUserRepository}
+import com.aboveland.example.repository.InMemoryUserRepository
 import com.aboveland.api.handlers.HealthHandler
 import com.aboveland.example.handlers.UserHandler
 
