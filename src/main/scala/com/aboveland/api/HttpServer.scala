@@ -12,6 +12,9 @@ import com.aboveland.example.services.UserService
 import com.aboveland.example.repository.InMemoryUserRepository
 import com.aboveland.api.handlers.{HealthHandler, WorldHandler}
 import com.aboveland.example.handlers.UserHandler
+import com.aboveland.handlers.DedicatedServerHandler
+import com.aboveland.actors.DedicatedServerManager
+import com.aboveland.services.DedicatedServerService
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -36,8 +39,8 @@ object HttpServer {
     
     try {
       val appConfig = AppConfig.load()
-      val routes = createApplicationRoutes()
-    
+      val routes = createApplicationRoutes()(ec, system)
+      
       system.log.info("Starting HTTP server on {}:{}", appConfig.server.host, appConfig.server.port)
       val bindingFuture = Http().newServerAt(appConfig.server.host, appConfig.server.port)
         .bind(routes)
@@ -50,7 +53,7 @@ object HttpServer {
           system.log.error("Failed to start server", ex)
           system.terminate()
       }(ec)
-    
+      
       setupGracefulShutdown(bindingFuture, system, ec)
       keepServerRunning()
       
@@ -62,16 +65,22 @@ object HttpServer {
     }
   }
   
-  private def createApplicationRoutes()(implicit ec: ExecutionContext): Route = {
+  private def createApplicationRoutes()(implicit ec: ExecutionContext, system: ActorSystem[Nothing]): Route = {
     // Create all application components
     val userRepository = new InMemoryUserRepository()
     val userService = new UserService(userRepository)
     val healthService = new HealthService()
     val worldService = new WorldService()
+    
+    // Create DedicatedServerManager Actor
+    val dedicatedServerManager = system.systemActorOf(DedicatedServerManager(), "dedicated-server-manager")
+    val dedicatedServerService = new DedicatedServerService(dedicatedServerManager)
+    
     val userHandler = new UserHandler(userService)
     val healthHandler = new HealthHandler(healthService)
     val worldHandler = new WorldHandler(worldService)
-    val routes = new Routes(userHandler, healthHandler, worldHandler)
+    val dedicatedServerHandler = new DedicatedServerHandler(dedicatedServerService)
+    val routes = new Routes(userHandler, healthHandler, worldHandler, dedicatedServerHandler)
     
     // Combine middleware and routes
     CorsDirectives.corsHandler {
