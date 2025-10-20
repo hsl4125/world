@@ -1,5 +1,5 @@
 // Version definitions
-val akkaVersion = "2.10.6"
+val akkaVersion = "2.10.9"
 val akkaHttpVersion = "10.7.2"
 val logbackVersion = "1.5.19"
 val sprayJsonVersion = "1.3.6"
