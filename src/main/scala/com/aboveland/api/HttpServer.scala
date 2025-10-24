@@ -10,7 +10,7 @@ import com.aboveland.api.routes.Routes
 import com.aboveland.api.services.{HealthService, WorldService}
 import com.aboveland.api.handlers.{HealthHandler, WorldHandler}
 import com.aboveland.handlers.DedicatedServerHandler
-import com.aboveland.actors.DedicatedServerManager
+import com.aboveland.actors.{DedicatedServerManager, DedicatedServerManagerActor}
 import com.aboveland.services.DedicatedServerService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -65,16 +65,19 @@ object HttpServer {
   private def createApplicationRoutes()(implicit ec: ExecutionContext, system: ActorSystem[Nothing]): Route = {
     // Create all application components
     val healthService = new HealthService()
-    val worldService = new WorldService()
+
     
     // Create DedicatedServerManager Actor
     val dedicatedServerManager = system.systemActorOf(DedicatedServerManager(), "dedicated-server-manager")
     val dedicatedServerService = new DedicatedServerService(dedicatedServerManager)
 
+    val dedicatedServerManagerActor = system.systemActorOf(DedicatedServerManagerActor(), "dedicated-server-manager-actor")
+    val worldService = new WorldService(dedicatedServerManagerActor)
+
     val healthHandler = new HealthHandler(healthService)
     val worldHandler = new WorldHandler(worldService)
     val dedicatedServerHandler = new DedicatedServerHandler(dedicatedServerService)
-    val routes = new Routes( healthHandler, worldHandler, dedicatedServerHandler)
+    val routes = new Routes(healthHandler, worldHandler, dedicatedServerHandler)
     
     // Combine middleware and routes
     CorsDirectives.corsHandler {

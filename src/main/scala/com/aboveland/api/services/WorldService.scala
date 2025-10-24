@@ -1,8 +1,12 @@
 package com.aboveland.api.services
 
-import scala.concurrent.Future
+import akka.actor.typed.{ActorRef, ActorSystem}
+import com.aboveland.actors.DedicatedServerManagerActor
 
-class WorldService {
+import scala.concurrent.{ExecutionContext, Future}
+
+class WorldService(private val managerRef: ActorRef[DedicatedServerManagerActor.Command])
+                  (implicit system: ActorSystem[_], ec: ExecutionContext) {
   
   def getWorld(): Future[String] = {
     Future.successful("World data retrieved successfully")
