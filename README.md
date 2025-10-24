@@ -37,15 +37,6 @@ world-api/
 │   │   │       │   │   └── LoggingDirectives.scala # Request logging
 │   │   │       │   └── utils/
 │   │   │       │       └── JsonSupport.scala # JSON utilities
-│   │   │       ├── example/          # Example user feature
-│   │   │       │   ├── handlers/
-│   │   │       │   │   └── UserHandler.scala # User request handlers (example)
-│   │   │       │   ├── models/
-│   │   │       │   │   └── UserModels.scala  # User data models (example)
-│   │   │       │   ├── services/
-│   │   │       │   │   └── UserService.scala # User business logic (example)
-│   │   │       │   └── repository/
-│   │   │       │       └── UserRepository.scala # Data access layer (example)
 │   │   │       ├── actors/           # Akka Typed Actors
 │   │   │       │   └── HelloWorldActor.scala
 │   │   │       └── config/           # Configuration management
@@ -109,13 +100,6 @@ world-api/
 - `GET /api/v1/health/ready` - Readiness check
 - `GET /api/v1/health/live` - Liveness check
 
-### User Endpoints (example)
-- `GET /example/v1/users` - Get all users
-- `POST /example/v1/users` - Create a new user
-- `GET /example/v1/users/{id}` - Get user by ID
-- `PUT /example/v1/users/{id}` - Update user
-- `DELETE /example/v1/users/{id}` - Delete user
-
 ## Dependencies
 
 - **Akka Actor**: Core actor functionality
@@ -154,8 +138,4 @@ The project uses the package structure `com.aboveland.api` for core APIs and `co
 - `com.aboveland.api.middleware` - HTTP middleware (CORS, logging, error handling)
 - `com.aboveland.api.config` - Configuration management
 - `com.aboveland.api.utils` - Utility classes
-- `com.aboveland.example.handlers` - Example `UserHandler`
-- `com.aboveland.example.services` - Example `UserService`
-- `com.aboveland.example.repository` - Example `UserRepository`
-- `com.aboveland.example.models` - Example `UserModels`
 

@@ -3,11 +3,9 @@ package com.aboveland.api.routes
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import com.aboveland.api.handlers.{HealthHandler, WorldHandler}
-import com.aboveland.example.handlers.UserHandler
 import com.aboveland.handlers.DedicatedServerHandler
 
 class Routes(
-  userHandler: UserHandler,
   healthHandler: HealthHandler,
   worldHandler: WorldHandler,
   dedicatedServerHandler: DedicatedServerHandler
@@ -27,11 +25,6 @@ class Routes(
     pathPrefix("api" / "v1") {
       concat(
         healthHandler.routes
-      )
-    } ~
-    pathPrefix("example" / "v1") {
-      concat(
-        userHandler.routes
       )
     } ~
     // Root path redirects to health check

@@ -8,10 +8,7 @@ import com.aboveland.api.config.AppConfig
 import com.aboveland.api.middleware.{CorsDirectives, ErrorHandlingDirectives, LoggingDirectives}
 import com.aboveland.api.routes.Routes
 import com.aboveland.api.services.{HealthService, WorldService}
-import com.aboveland.example.services.UserService
-import com.aboveland.example.repository.InMemoryUserRepository
 import com.aboveland.api.handlers.{HealthHandler, WorldHandler}
-import com.aboveland.example.handlers.UserHandler
 import com.aboveland.handlers.DedicatedServerHandler
 import com.aboveland.actors.DedicatedServerManager
 import com.aboveland.services.DedicatedServerService
@@ -67,20 +64,17 @@ object HttpServer {
   
   private def createApplicationRoutes()(implicit ec: ExecutionContext, system: ActorSystem[Nothing]): Route = {
     // Create all application components
-    val userRepository = new InMemoryUserRepository()
-    val userService = new UserService(userRepository)
     val healthService = new HealthService()
     val worldService = new WorldService()
     
     // Create DedicatedServerManager Actor
     val dedicatedServerManager = system.systemActorOf(DedicatedServerManager(), "dedicated-server-manager")
     val dedicatedServerService = new DedicatedServerService(dedicatedServerManager)
-    
-    val userHandler = new UserHandler(userService)
+
     val healthHandler = new HealthHandler(healthService)
     val worldHandler = new WorldHandler(worldService)
     val dedicatedServerHandler = new DedicatedServerHandler(dedicatedServerService)
-    val routes = new Routes(userHandler, healthHandler, worldHandler, dedicatedServerHandler)
+    val routes = new Routes( healthHandler, worldHandler, dedicatedServerHandler)
     
     // Combine middleware and routes
     CorsDirectives.corsHandler {
