@@ -1,8 +1,10 @@
 package com.aboveland.api.utils
 
-import spray.json.{DefaultJsonProtocol, JsonFormat}
+import spray.json.{DefaultJsonProtocol, JsonFormat, RootJsonFormat}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import com.aboveland.models.BaseServer
+import com.aboveland.actors.DedicatedServerManager
 
 object JsonSupport extends DefaultJsonProtocol {
   
@@ -19,4 +21,11 @@ object JsonSupport extends DefaultJsonProtocol {
       case _ => throw new RuntimeException("Expected string for LocalDateTime")
     }
   }
+  
+  // Model JSON protocols
+  implicit val baseServerFormat: RootJsonFormat[BaseServer] = 
+    jsonFormat15(BaseServer.apply)
+  
+  implicit val registerServerResponseFormat: RootJsonFormat[DedicatedServerManager.RegisterServerResponse] = 
+    jsonFormat1(DedicatedServerManager.RegisterServerResponse.apply)
 }
