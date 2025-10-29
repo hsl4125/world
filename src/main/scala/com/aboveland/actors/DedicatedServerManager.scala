@@ -23,7 +23,7 @@ object DedicatedServerManager {
       case RegisterServer(server, replyTo) =>
         ctx.child(makeServerName(server)) match {
           case Some(serverRef) =>
-            ctx.log.info("RegisterServer need update: {}", server)
+            ctx.log.info("RegisterServer need update ds server: {}", server)
             serverRef.asInstanceOf[ActorRef[DedicatedServer.Command]] ! UpdateServer(server, replyTo)
             // TODO: [error] match may not be exhaustive. case: Some(_)
             // serverRef ! UpdateServer(server, replyTo)

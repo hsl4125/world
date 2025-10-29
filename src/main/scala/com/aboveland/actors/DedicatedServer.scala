@@ -13,7 +13,7 @@ object DedicatedServer {
   case class UpdateServer(server: BaseServer, replyTo: ActorRef[RegisterServerResponse]) extends Command
 
   def apply(server: BaseServer): Behavior[Command] = Behaviors.setup { context =>
-    context.log.info("DedicatedServer started")
+    context.log.info("DedicatedServer[{}] started", context.self.path)
 
     val serverState = ServerState(
       baseInfo = server,
@@ -31,7 +31,7 @@ object DedicatedServer {
   private def run(serverState: ServerState): Behavior[Command] = Behaviors.receive { (ctx, cmd) =>
     cmd match {
       case UpdateServer(server, replyTo) =>
-        ctx.log.info("UpdateServer: {}", server)
+        ctx.log.info("DedicatedServer[{}] update: {}", ctx.self.path.name, server)
         replyTo ! RegisterServerResponse(server)
         Behaviors.same
     }
