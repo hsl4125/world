@@ -1,7 +1,7 @@
 // Version definitions
 val akkaVersion = "2.10.9"
 val akkaHttpVersion = "10.7.2"
-val logbackVersion = "1.5.19"
+val logbackVersion = "1.5.20"
 val sprayJsonVersion = "1.3.6"
 val configVersion = "1.4.5"
 val scalatestVersion = "3.2.19"
@@ -25,7 +25,7 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-stream-typed" % akkaVersion,
       "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-      "org.slf4j" % "slf4j-api" % "2.0.16",
+      "org.slf4j" % "slf4j-api" % "2.0.17",
       "ch.qos.logback" % "logback-classic" % logbackVersion,
       
       // JSON processing
