@@ -1,6 +1,6 @@
 package com.aboveland.actors
 
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorRef, Behavior, Terminated}
 import akka.actor.typed.scaladsl.Behaviors
 import com.aboveland.actors.DedicatedServer.UpdateServer
 import com.aboveland.models.{BaseServer, BaseServerStatus}
@@ -9,44 +9,68 @@ object DedicatedServerManager {
 
   sealed trait Command
   case class RegisterServer(server: BaseServer, replyTo: ActorRef[RegisterServerResponse]) extends Command
-  
+
   sealed trait Response
   case class RegisterServerResponse(server: BaseServer) extends Response
 
+  // State to hold maxServerID and sidMap
+  private case class ManagerState(
+    maxServerID: Long,
+    sidMap: collection.mutable.Map[Long, ActorRef[DedicatedServer.Command]]
+  )
+
   def apply(): Behavior[Command] = Behaviors.setup { context =>
     context.log.info("DedicatedServerManager started")
-    run(0L) // Start with maxServerID = 0
+    val initialState = ManagerState(0L, collection.mutable.Map.empty[Long, ActorRef[DedicatedServer.Command]])
+    run(initialState)
   }
 
-  private def run(maxServerID: Long): Behavior[Command] = Behaviors.receive { (ctx, cmd) =>
-    cmd match {
-      case RegisterServer(server, replyTo) =>
-        ctx.child(makeServerName(server)) match {
-          case Some(serverRef) =>
-            ctx.log.info("RegisterServer need update ds server: {}", server)
-            serverRef.asInstanceOf[ActorRef[DedicatedServer.Command]] ! UpdateServer(server, replyTo)
-            // TODO: [error] match may not be exhaustive. case: Some(_)
-            // serverRef ! UpdateServer(server, replyTo)
-            run(maxServerID)
+  private def run(state: ManagerState): Behavior[Command] = 
+    Behaviors.receive[Command] { (ctx, cmd) =>
+      cmd match {
+        case RegisterServer(server, replyTo) =>
+          ctx.child(makeServerName(server)) match {
+            case Some(serverRef) =>
+              ctx.log.info("RegisterServer need update ds server: {}", server)
+              serverRef.asInstanceOf[ActorRef[DedicatedServer.Command]] ! UpdateServer(server, replyTo)
+              run(state)
+            case None =>
+              // Increment maxServerID and assign it to the new server
+              val newServerID = state.maxServerID + 1
+              val updatedServer = server.copy(sid = newServerID, status = BaseServerStatus.STARTING)
+
+              ctx.log.info("RegisterServer: {} with assigned ID: {}", server.machineId, newServerID)
+
+              // Create DedicatedServer actor with the updated server (new sid)
+              val serverName = makeServerName(updatedServer)
+              val dsRef = ctx.spawn(DedicatedServer(updatedServer), serverName)
+
+              // Watch the DedicatedServer actor to monitor its lifecycle
+              ctx.watch(dsRef)
+
+              // Reply with the updated server
+              replyTo ! RegisterServerResponse(updatedServer)
+
+              // Add to sidMap
+              state.sidMap += (newServerID -> dsRef)
+
+              // Continue with updated state
+              run(state.copy(maxServerID = newServerID))
+          }
+      }
+    }.receiveSignal {
+      case (ctx, Terminated(ref)) =>
+        // Find the sid associated with this terminated actor and remove it from sidMap
+        val sidToRemove = state.sidMap.find { case (_, actorRef) => actorRef == ref }
+        sidToRemove match {
+          case Some((sid, _)) =>
+            state.sidMap -= sid
+            ctx.log.info("DedicatedServer with sid {} terminated and removed from sidMap", sid)
           case None =>
-            // Increment maxServerID and assign it to the new server
-            val newServerID = maxServerID + 1
-            val updatedServer = server.copy(sid = newServerID, status = BaseServerStatus.STARTING)
-
-            ctx.log.info("RegisterServer: {} with assigned ID: {}", server.machineId, newServerID)
-
-            // Create DedicatedServer actor with the updated server (new sid)
-            val serverName = makeServerName(updatedServer)
-            ctx.spawn(DedicatedServer(updatedServer), serverName)
-
-            // Reply with the updated server
-            replyTo ! RegisterServerResponse(updatedServer)
-
-            // Continue with updated maxServerID state
-            run(newServerID)
+            ctx.log.warn("Received Terminated signal for unknown actor: {}", ref.path)
         }
+        run(state)
     }
-  }
 
   private def makeServerName(server: BaseServer): String = {
     s"ds-${server.machineId}-${server.port}"
