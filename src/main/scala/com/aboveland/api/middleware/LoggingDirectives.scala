@@ -1,15 +1,16 @@
 package com.aboveland.api.middleware
 
 import akka.http.scaladsl.server.Directive0
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.model.{ContentType, MessageEntity}
 import akka.stream.scaladsl.{Flow, Sink}
 import akka.NotUsed
+import akka.stream.Materializer
 import akka.util.ByteString
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 
 object LoggingDirectives {
   
@@ -51,8 +52,8 @@ object LoggingDirectives {
   // Logs headers and up to maxBytes of request/response bodies for textual/JSON content
   def logRequestResponseWithBody(maxBytes: Int = 8192, timeout: FiniteDuration = 2.seconds): Directive0 = {
     extractRequestContext.flatMap { ctx =>
-      implicit val mat = ctx.materializer
-      implicit val ec = ctx.executionContext
+      implicit val mat: Materializer = ctx.materializer
+      implicit val ec: ExecutionContextExecutor = ctx.executionContext
 
       def isTextual(ct: ContentType): Boolean =
         ct.mediaType.isText || ct.mediaType.subType == "json" || ct.mediaType.subType == "xml"
@@ -62,11 +63,11 @@ object LoggingDirectives {
       onSuccess(ctx.request.entity.toStrict(timeout)).flatMap { strictReq =>
         val reqHeaders = ctx.request.headers.mkString(", ")
         val reqBody =
-          if (strictReq.data.length > 0 && isTextual(strictReq.contentType))
+          if (strictReq.data.nonEmpty && isTextual(strictReq.contentType))
             strictReq.data.decodeString(strictReq.contentType.charsetOption.map(_.value).getOrElse("UTF-8")).take(maxBytes)
           else ""
 
-        logger.info(s"HTTP REQ ${ctx.request.method.value} ${ctx.request.uri} headers=[${reqHeaders}] body=${if (reqBody.nonEmpty) reqBody else "<omitted>"}")
+        logger.info(s"""HTTP REQ ${ctx.request.method.value} ${ctx.request.uri} headers=[$reqHeaders] body=${if (reqBody.nonEmpty) reqBody else "<omitted>"}""")
 
         mapRequest(_.withEntity(strictReq)).tflatMap { _ =>
           mapResponse { resp =>
@@ -90,14 +91,14 @@ object LoggingDirectives {
                     done.onComplete { _ =>
                       val charset = resp.entity.contentType.charsetOption.map(_.value).getOrElse("UTF-8")
                       val preview = accRef.get().decodeString(charset)
-                      logger.info(s"HTTP RES DONE ${resp.status.intValue()} duration=${duration}ms headers=[${resp.headers.mkString(", ")}] body-preview=${preview}")
+                      logger.info(s"""HTTP RES DONE ${resp.status.intValue()} duration=${duration}ms headers=[${resp.headers.mkString(", ")}] body-preview=$preview""")
                     }(ec)
                     NotUsed
                   }
 
               val ct = resp.entity.contentType.toString()
               val cl = resp.entity.contentLengthOption.map(_.toString).getOrElse("unknown")
-              logger.info(s"HTTP RES START ${resp.status.intValue()} headers=[${resp.headers.mkString(", ")}] content-type=${ct} content-length=${cl}")
+              logger.info(s"""HTTP RES START ${resp.status.intValue()} headers=[${resp.headers.mkString(", ")}] content-type=$ct content-length=$cl""")
               val loggedEntity: MessageEntity = resp.entity.transformDataBytes(tee).asInstanceOf[MessageEntity]
               resp.withEntity(loggedEntity)
             }
