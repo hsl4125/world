@@ -3,15 +3,18 @@ package com.aboveland.actors
 import akka.actor.typed.{ActorRef, Behavior, Terminated}
 import akka.actor.typed.scaladsl.Behaviors
 import com.aboveland.actors.DedicatedServer.UpdateServer
-import com.aboveland.models.{BaseServer, BaseServerStatus}
+import com.aboveland.models.{BaseServer, BaseServerStatus, ErrorCode, ErrorResponse, PlayerNumber}
 
 object DedicatedServerManager {
 
   sealed trait Command
   case class RegisterServer(server: BaseServer, replyTo: ActorRef[RegisterServerResponse]) extends Command
+  case class UpdatePlayerNumber(number: PlayerNumber, replyTo: ActorRef[UpdatePlayerNumberResponse]) extends Command
+
 
   sealed trait Response
   case class RegisterServerResponse(server: BaseServer) extends Response
+  case class UpdatePlayerNumberResponse(response: Either[ErrorResponse, PlayerNumber]) extends Response
 
   // State to hold maxServerID and sidMap
   private case class ManagerState(
@@ -56,6 +59,17 @@ object DedicatedServerManager {
 
               // Continue with updated state
               run(state.copy(maxServerID = newServerID))
+          }
+        case UpdatePlayerNumber(number, replyTo) =>
+          ctx.log.info("UpdatePlayerNumber: {}", number)
+          state.sidMap.get(number.sid) match {
+            case Some(serverRef) =>
+              serverRef ! DedicatedServer.UpdatePlayerNumber(number, replyTo)
+              Behaviors.same
+            case None =>
+              ctx.log.error("UpdatePlayerNumber: {} not found", number.sid)
+              replyTo ! UpdatePlayerNumberResponse(Left(ErrorResponse(ErrorCode.ERROR_NUMBERS, s"UpdatePlayerNumber: ${number.sid} not found")))
+              Behaviors.same
           }
       }
     }.receiveSignal {

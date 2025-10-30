@@ -2,8 +2,8 @@ package com.aboveland.actors
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import com.aboveland.actors.DedicatedServerManager.{RegisterServer, RegisterServerResponse}
-import com.aboveland.models.{BaseServer, ServerState}
+import com.aboveland.actors.DedicatedServerManager.{RegisterServer, RegisterServerResponse, UpdatePlayerNumberResponse}
+import com.aboveland.models.{BaseServer, PlayerNumber, ServerState}
 
 import java.time.Instant
 
@@ -11,6 +11,7 @@ object DedicatedServer {
 
   sealed trait Command
   case class UpdateServer(server: BaseServer, replyTo: ActorRef[RegisterServerResponse]) extends Command
+  case class UpdatePlayerNumber(number: PlayerNumber, replyTo: ActorRef[UpdatePlayerNumberResponse]) extends Command
 
   def apply(server: BaseServer): Behavior[Command] = Behaviors.setup { context =>
     context.log.info("DedicatedServer[{}] started", context.self.path)
@@ -34,6 +35,12 @@ object DedicatedServer {
         ctx.log.info("DedicatedServer[{}] update: {}", ctx.self.path.name, server)
         replyTo ! RegisterServerResponse(server)
         Behaviors.same
+
+      case UpdatePlayerNumber(number, replyTo) =>
+        val newServer = serverState.copy(players = number.players)
+        ctx.log.info("DedicatedServer[{}] update player number: {}", ctx.self.path, number)
+        replyTo ! UpdatePlayerNumberResponse(Right(number))
+        run(newServer)
     }
   }
 }
