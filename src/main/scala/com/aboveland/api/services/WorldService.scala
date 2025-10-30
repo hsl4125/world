@@ -5,7 +5,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.typed.scaladsl.ActorFlow
 import akka.util.Timeout
 import com.aboveland.actors.DedicatedServerManager
-import com.aboveland.models.BaseServer
+import com.aboveland.models.{BaseServer, PlayerNumber}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,8 +34,15 @@ class WorldService(private val managerRef: ActorRef[DedicatedServerManager.Comma
       .map(_.server)
   }
   
-  def getWorldNumber(): Future[String] = {
-    Future.successful("World number: 1")
+  def updatePlayerNumber(number: PlayerNumber): Future[DedicatedServerManager.UpdatePlayerNumberResponse] = {
+    val updatePlayerNumberFlow = ActorFlow.ask(managerRef) {
+      (num: PlayerNumber, replyTo: ActorRef[DedicatedServerManager.UpdatePlayerNumberResponse]) =>
+        DedicatedServerManager.UpdatePlayerNumber(num, replyTo)
+    }
+
+    Source.single(number)
+      .via(updatePlayerNumberFlow)
+      .runWith(Sink.head)
   }
   
   def getWorldPortal(): Future[String] = {

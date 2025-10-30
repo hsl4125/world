@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import com.aboveland.api.services.WorldService
 import com.aboveland.api.utils.JsonSupport._
-import com.aboveland.models.BaseServer
+import com.aboveland.models.{BaseServer, PlayerNumber}
 
 class WorldHandler(worldService: WorldService) {
   
@@ -35,8 +35,10 @@ class WorldHandler(worldService: WorldService) {
       // POST /world/number
       path("number") {
         post {
-          onSuccess(worldService.getWorldNumber()) { result =>
-            complete(StatusCodes.OK, result)
+          entity(as[PlayerNumber]) { number =>
+            onSuccess(worldService.updatePlayerNumber(number)) { result =>
+              complete(StatusCodes.OK, result.response)
+            }
           }
         }
       },

@@ -3,7 +3,7 @@ package com.aboveland.api.utils
 import spray.json.{DefaultJsonProtocol, JsonFormat, RootJsonFormat}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import com.aboveland.models.BaseServer
+import com.aboveland.models.{BaseServer, PlayerNumber, ErrorResponse}
 import com.aboveland.actors.DedicatedServerManager
 
 object JsonSupport extends DefaultJsonProtocol {
@@ -28,4 +28,14 @@ object JsonSupport extends DefaultJsonProtocol {
   
   implicit val registerServerResponseFormat: RootJsonFormat[DedicatedServerManager.RegisterServerResponse] = 
     jsonFormat1(DedicatedServerManager.RegisterServerResponse.apply)
+
+  // Player number and update response formats
+  implicit val playerNumberFormat: RootJsonFormat[PlayerNumber] =
+    jsonFormat2(PlayerNumber.apply)
+
+  implicit val modelErrorResponseFormat: RootJsonFormat[ErrorResponse] =
+    jsonFormat2(ErrorResponse.apply)
+
+  implicit val updatePlayerNumberResponseFormat: RootJsonFormat[DedicatedServerManager.UpdatePlayerNumberResponse] =
+    jsonFormat1(DedicatedServerManager.UpdatePlayerNumberResponse.apply)
 }

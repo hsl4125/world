@@ -67,7 +67,7 @@ object DedicatedServerManager {
               serverRef ! DedicatedServer.UpdatePlayerNumber(number, replyTo)
               Behaviors.same
             case None =>
-              ctx.log.error("UpdatePlayerNumber: {} not found", number.sid)
+              ctx.log.error("UpdatePlayerNumber: sid[{}] not found", number.sid)
               replyTo ! UpdatePlayerNumberResponse(Left(ErrorResponse(ErrorCode.ERROR_NUMBERS, s"UpdatePlayerNumber: ${number.sid} not found")))
               Behaviors.same
           }
