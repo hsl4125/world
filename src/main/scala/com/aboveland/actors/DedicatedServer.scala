@@ -32,9 +32,10 @@ object DedicatedServer {
   private def run(serverState: ServerState): Behavior[Command] = Behaviors.receive { (ctx, cmd) =>
     cmd match {
       case UpdateServer(server, replyTo) =>
-        ctx.log.info("DedicatedServer[{}] update: {}", ctx.self.path.name, server)
+        ctx.log.info("DedicatedServer[{}] update: {}", ctx.self.path, server)
         replyTo ! RegisterServerResponse(server)
-        Behaviors.same
+        val newServer = serverState.copy(baseInfo = server)
+        run(newServer)
 
       case UpdatePlayerNumber(number, replyTo) =>
         val newServer = serverState.copy(players = number.players)
