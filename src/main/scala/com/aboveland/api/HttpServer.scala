@@ -76,7 +76,7 @@ object HttpServer {
     // Combine middleware and routes
     CorsDirectives.corsHandler {
       ErrorHandlingDirectives.handleErrors {
-        LoggingDirectives.logRequests {
+        LoggingDirectives.logRequestResponseWithBody() {
           routes.allRoutes
         }
       }
