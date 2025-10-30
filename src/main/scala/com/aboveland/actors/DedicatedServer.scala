@@ -2,7 +2,7 @@ package com.aboveland.actors
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import com.aboveland.actors.DedicatedServerManager.{RegisterServer, RegisterServerResponse, UpdatePlayerNumberResponse}
+import com.aboveland.actors.DedicatedServerManager.{RegisterServerResponse, UpdatePlayerNumberResponse}
 import com.aboveland.models.{BaseServer, PlayerNumber, ServerState}
 
 import java.time.Instant
